@@ -1,6 +1,7 @@
 {
-  "name": "nedapay-admin",
-  "version": "0.1.0",
+  "name": "nedapay-bank-portal",
+  "version": "1.0.0",
+  "description": "NEDApay Bank Partner Portal - Secure banking integration portal for financial institutions",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

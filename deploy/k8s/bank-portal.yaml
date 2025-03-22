@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-portal
+  namespace: nedapay
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bank-portal
+  template:
+    metadata:
+      labels:
+        app: bank-portal
+    spec:
+      containers:
+      - name: bank-portal
+        image: nedapay-bank-portal:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DEPLOYMENT_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: bank-portal-config
+              key: DEPLOYMENT_MODE
+        envFrom:
+        - secretRef:
+            name: bank-portal-secrets
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bank-portal
+  namespace: nedapay
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: bank-portal
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bank-portal
+  namespace: nedapay
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+  - host: bank-portal.nedapay.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: bank-portal
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - bank-portal.nedapay.com
+    secretName: bank-portal-tls

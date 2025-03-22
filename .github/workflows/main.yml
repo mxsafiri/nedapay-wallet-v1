@@ -1,0 +1,129 @@
+name: Bank Portal CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+    
+    - name: Install Dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Run Linting
+      working-directory: ./frontend
+      run: npm run lint
+    
+    - name: Run Type Check
+      working-directory: ./frontend
+      run: npm run type-check
+    
+    - name: Run Tests
+      working-directory: ./frontend
+      run: npm test
+      
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+    
+    - name: Install Dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Build
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+    
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: frontend/.next
+        retention-days: 7
+
+  deploy-demo:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: demo
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+        path: frontend/.next
+    
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    
+    - name: Deploy to Demo Environment
+      working-directory: ./frontend
+      run: |
+        aws s3 sync .next s3://${{ secrets.DEMO_BUCKET_NAME }}
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.DEMO_DISTRIBUTION_ID }} --paths "/*"
+      env:
+        NEXT_PUBLIC_DEPLOYMENT_MODE: 'demo'
+
+  deploy-production:
+    needs: deploy-demo
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+        path: frontend/.next
+    
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    
+    - name: Deploy to Production
+      working-directory: ./frontend
+      run: |
+        aws s3 sync .next s3://${{ secrets.PROD_BUCKET_NAME }}
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_DISTRIBUTION_ID }} --paths "/*"
+      env:
+        NEXT_PUBLIC_DEPLOYMENT_MODE: 'production'

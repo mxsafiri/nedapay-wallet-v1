@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTransaction } from '@/hooks/useTransaction';
-import { BankTransaction } from '@/lib/mock-api/banking';
+import type { BankTransaction } from '@/lib/mock-api/banking';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -15,16 +15,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 interface TransactionListProps {
-  transactions?: BankTransaction[];
-  onReconcile?: (transactionId: string) => void;
+  transactions: BankTransaction[];
+  onViewDetails?: (transaction: BankTransaction) => void;
 }
 
-export function TransactionList({ transactions = [], onReconcile }: TransactionListProps) {
+export function TransactionList({ transactions, onViewDetails }: TransactionListProps) {
   const { triggerReconciliation, loading } = useTransaction();
 
   const handleReconcile = async (transactionId: string) => {
     await triggerReconciliation(transactionId);
-    onReconcile?.(transactionId);
   };
 
   const getStatusColor = (status: string) => {
@@ -41,25 +40,23 @@ export function TransactionList({ transactions = [], onReconcile }: TransactionL
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Reference</TableHead>
+            <TableHead>ID</TableHead>
             <TableHead>Type</TableHead>
-            <TableHead>Provider</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Date</TableHead>
+            <TableHead>Bank</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {transactions.map((transaction) => (
             <TableRow key={transaction.id}>
-              <TableCell className="font-mono">{transaction.reference}</TableCell>
+              <TableCell>{transaction.id}</TableCell>
               <TableCell className="capitalize">{transaction.type}</TableCell>
-              <TableCell className="capitalize">{transaction.provider}</TableCell>
               <TableCell>
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
@@ -74,10 +71,15 @@ export function TransactionList({ transactions = [], onReconcile }: TransactionL
                   {transaction.status}
                 </Badge>
               </TableCell>
+              <TableCell>{transaction.bankDetails.bankName}</TableCell>
               <TableCell>
-                {new Date(transaction.createdAt).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onViewDetails?.(transaction)}
+                >
+                  View Details
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -91,7 +93,7 @@ export function TransactionList({ transactions = [], onReconcile }: TransactionL
           ))}
           {transactions.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-4">
+              <TableCell colSpan={6} className="text-center py-4">
                 No transactions found
               </TableCell>
             </TableRow>

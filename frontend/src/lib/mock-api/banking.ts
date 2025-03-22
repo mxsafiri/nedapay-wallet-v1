@@ -2,6 +2,9 @@ import { demoConfig, demoScenarios, shouldFail, getRandomDelay, getRandomDiscrep
 import type { BankTransaction, BankTransactionResponse } from '../services/banking';
 import type { ReconciliationResult } from '../services/transaction';
 
+// Re-export the BankTransaction type for components
+export type { BankTransaction, BankTransactionResponse };
+
 export class MockBankingApi {
   private transactions = new Map<string, BankTransaction>();
   private currentScenario = demoConfig.defaultScenario;
