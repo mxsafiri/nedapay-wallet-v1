@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTransaction } from '@/hooks/useTransaction';
-import type { BankTransaction } from '@/lib/mock-api/banking';
+import type { BankTransaction } from '@/lib/services/banking';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -26,52 +26,33 @@ export function TransactionList({ transactions, onViewDetails }: TransactionList
     await triggerReconciliation(transactionId);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-500';
-      case 'failed':
-        return 'bg-red-500';
-      case 'processing':
-        return 'bg-yellow-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
-
   return (
     <div className="w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead>Reference</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Bank</TableHead>
+            <TableHead>Date</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {transactions.map((transaction) => (
             <TableRow key={transaction.id}>
-              <TableCell>{transaction.id}</TableCell>
+              <TableCell>{transaction.reference}</TableCell>
               <TableCell className="capitalize">{transaction.type}</TableCell>
+              <TableCell>${transaction.amount.toFixed(2)}</TableCell>
               <TableCell>
-                {new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: transaction.currency,
-                }).format(transaction.amount)}
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="secondary"
-                  className={`${getStatusColor(transaction.status)} text-white`}
-                >
+                <Badge variant={transaction.status === 'completed' ? 'success' : 'secondary'}>
                   {transaction.status}
                 </Badge>
               </TableCell>
               <TableCell>{transaction.bankDetails.bankName}</TableCell>
+              <TableCell>{new Date(transaction.createdAt).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Button
                   variant="outline"
@@ -93,7 +74,7 @@ export function TransactionList({ transactions, onViewDetails }: TransactionList
           ))}
           {transactions.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-4">
+              <TableCell colSpan={7} className="text-center py-4">
                 No transactions found
               </TableCell>
             </TableRow>
