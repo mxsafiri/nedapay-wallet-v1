@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Security Alert - {{app_name}}</title>
+</head>
+<body>
+    <h2>Security Alert</h2>
+    <p>Hello {{data.full_name}},</p>
+    <p>We detected a security event related to your {{app_name}} account.</p>
+    
+    <div style="background-color: #fff3cd; padding: 20px; border-radius: 4px; border: 1px solid #ffeeba;">
+        <h3>Alert Details</h3>
+        <p><strong>Type:</strong> {{data.alert_type}}</p>
+        <p><strong>Time:</strong> {{data.timestamp}}</p>
+        <p><strong>Details:</strong> {{data.details}}</p>
+    </div>
+    
+    <p>If you recognize this activity, no action is needed. If you did not perform this action, please:</p>
+    <ol>
+        <li>Change your password immediately</li>
+        <li>Enable two-factor authentication if not already enabled</li>
+        <li>Contact our support team</li>
+    </ol>
+    
+    <p><a href="{{app_url}}/security" style="background-color: #dc3545; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px;">Review Account Security</a></p>
+    
+    <p>Best regards,<br>
+    The {{app_name}} Security Team</p>
+    
+    <hr>
+    <p style="font-size: 12px; color: #666;">
+        For immediate assistance, please contact us at {{support_email}}
+    </p>
+</body>
+</html>

@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0B120C;
+    --foreground: #FFFFFF;
+    
+    --primary: #14DD3C;
+    --primary-light: #B4FAB8;
+    
+    --muted: rgba(255, 255, 255, 0.7);
+    --muted-foreground: rgba(255, 255, 255, 0.7);
+    
+    --card: rgba(255, 255, 255, 0.05);
+    --card-foreground: #FFFFFF;
+    
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.05);
+    
+    --error: #E54D4D;
+    
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .card-gradient {
+    background: linear-gradient(135deg, var(--card) 0%, rgba(11, 18, 12, 0.7) 100%);
+    backdrop-filter: blur(10px);
+  }
+  
+  .stat-card {
+    @apply p-4 rounded-lg card-gradient border border-border;
+  }
+
+  .stat-value {
+    @apply text-2xl font-semibold text-foreground;
+  }
+
+  .stat-label {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .chart-container {
+    @apply rounded-lg card-gradient border border-border p-4;
+  }
+}

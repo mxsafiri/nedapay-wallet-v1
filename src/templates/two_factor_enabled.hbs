@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Two-Factor Authentication Enabled</title>
+</head>
+<body>
+    <h2>Two-Factor Authentication Enabled</h2>
+    <p>Hello {{data.full_name}},</p>
+    <p>Two-factor authentication has been successfully enabled for your {{app_name}} account.</p>
+    
+    <h3>Your Backup Codes</h3>
+    <p>Please save these backup codes in a secure location. You can use them to access your account if you lose access to your authentication device:</p>
+    
+    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 4px;">
+        {{#each data.backup_codes}}
+        <code style="display: block; margin: 5px 0;">{{this}}</code>
+        {{/each}}
+    </div>
+    
+    <p><strong>Important:</strong> Each backup code can only be used once. Keep them safe and secure.</p>
+    
+    <p>If you did not enable two-factor authentication, please contact us immediately.</p>
+    
+    <p>Best regards,<br>
+    The {{app_name}} Team</p>
+    
+    <hr>
+    <p style="font-size: 12px; color: #666;">
+        For security concerns, please contact us immediately at {{support_email}}
+    </p>
+</body>
+</html>
