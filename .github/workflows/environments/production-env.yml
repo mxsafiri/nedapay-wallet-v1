@@ -1,0 +1,16 @@
+name: production-env
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual trigger'
+
+secrets:
+  - NEXT_PUBLIC_API_URL
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
+  - AWS_REGION
+  - PROD_BUCKET_NAME
+  - PROD_DISTRIBUTION_ID
