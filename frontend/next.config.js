@@ -2,29 +2,28 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'standalone',
   images: {
-    domains: ['nedapay.com'],
+    domains: ['nedapay.com'], // Add your image domains here
   },
-  // Enable static exports for improved performance
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['@radix-ui/react-icons'],
-    appDir: true,
+  poweredByHeader: false,
+  compress: true,
+  productionBrowserSourceMaps: false,
+  output: 'standalone',
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Configure headers for security
   async headers() {
     return [
       {
         source: '/:path*',
         headers: [
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains'
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
           }
         ],
       },

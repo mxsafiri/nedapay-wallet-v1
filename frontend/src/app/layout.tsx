@@ -5,8 +5,12 @@ import '@/styles/fonts.css';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
-  title: 'NEDApay Admin',
-  description: 'Admin dashboard for NEDApay wallet system',
+  title: 'NEDApay Bank Partner Portal',
+  description: 'Secure banking integration portal for financial institutions',
+  keywords: 'banking, fintech, integration, API, transactions, monitoring',
+  authors: [{ name: 'NEDApay' }],
+  viewport: 'width=device-width, initial-scale=1',
+  themeColor: '#14DD3C',
 };
 
 export default function RootLayout({
@@ -15,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html lang="en" className="dark">
+      <body className="font-sans antialiased min-h-screen bg-background">
         <Providers>
           {children}
           <Toaster />

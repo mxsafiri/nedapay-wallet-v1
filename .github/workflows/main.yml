@@ -35,6 +35,13 @@ jobs:
     - name: Run Tests
       working-directory: ./frontend
       run: npm test
+      env:
+        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+        ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       
   deploy:
     needs: test
@@ -44,9 +51,27 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Deploy to Vercel
+    - name: Link with Vercel
       run: |
-        npx vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+        npm install --global vercel
+        vercel link --confirm --token=${{ secrets.VERCEL_TOKEN }}
+    
+    - name: Pull Vercel Environment
+      run: vercel env pull --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env.production
+    
+    - name: Deploy to Vercel
       env:
-        VERCEL_GITHUB_COMMIT_SHA: ${{ github.sha }}
-        VERCEL_GITHUB_COMMIT_REF: ${{ github.ref }}
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+        ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      run: |
+        npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

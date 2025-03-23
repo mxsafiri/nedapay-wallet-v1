@@ -46,6 +46,79 @@ Set the correct mode before deployment:
 - API Documentation: OpenAPI/Swagger
 - UI: Tailwind CSS + Shadcn
 
+## Deployment Guide
+
+### Prerequisites
+- Node.js >= 18.0.0
+- npm >= 8.0.0
+- Vercel account and CLI
+- Access to NEDApay API credentials
+
+### Environment Setup
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure the following environment variables:
+   - Authentication:
+     - `NEXTAUTH_SECRET`: Session encryption key
+     - `NEXTAUTH_URL`: Your application URL
+     - `ADMIN_USERNAME`: Admin login email
+     - `ADMIN_PASSWORD`: Admin login password
+   
+   - API Configuration:
+     - `NEXT_PUBLIC_API_URL`: NEDApay API endpoint
+     - `API_KEY`: Your API access key
+   
+   - Deployment:
+     - `VERCEL_TOKEN`: Vercel deployment token
+     - `VERCEL_ORG`: Your Vercel organization
+     - `VERCEL_PROJECT`: Project name on Vercel
+
+### Local Development
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Run type checking
+npm run type-check
+
+# Run linting
+npm run lint
+```
+
+### Production Deployment
+1. **GitHub Setup**:
+   - Add required secrets in GitHub repository settings
+   - Configure environment variables in Vercel project settings
+
+2. **Deploy**:
+   - Push to main branch to trigger automatic deployment
+   - Or deploy manually:
+     ```bash
+     npm run build
+     vercel --prod
+     ```
+
+3. **Verify Deployment**:
+   - Check admin login functionality
+   - Verify API connectivity
+   - Test transaction processing
+   - Monitor error reporting
+
+### Security Checklist
+- [ ] Configure HTTPS and SSL certificates
+- [ ] Set up proper CORS policies
+- [ ] Enable rate limiting for API endpoints
+- [ ] Configure session management
+- [ ] Set up audit logging
+- [ ] Enable 2FA for admin access
+- [ ] Regular security audits
+
 ## Development Roadmap
 
 ### Phase 1: Core Integration
