@@ -1,10 +1,12 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
   "outputDirectory": "frontend/.next",
-  "installCommand": "cd frontend && npm install",
+  "installCommand": "cd frontend && npm install --legacy-peer-deps",
   "framework": "nextjs",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://api.nedapay.com",
-    "NEXT_PUBLIC_DEPLOYMENT_MODE": "demo"
+    "NEXT_PUBLIC_DEPLOYMENT_MODE": "demo",
+    "NEXTAUTH_URL": "https://nedapay-wallet-v1.vercel.app",
+    "NEXTAUTH_SECRET": "your-32-character-secret-key-here"
   }
 }
