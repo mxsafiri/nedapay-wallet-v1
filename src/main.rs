@@ -36,7 +36,7 @@ async fn main() {
 
     // Build our application with a route
     let app = Router::new()
-        .route("/health", get(handlers::health::health_check))
+        .route("/health", get(health_check))
         .route("/api/v1/auth/register", post(handlers::auth::register))
         .route("/api/v1/auth/login", post(handlers::auth::login))
         .route("/api/v1/wallet/balance", get(handlers::wallet::get_balance))
@@ -46,10 +46,19 @@ async fn main() {
         .with_state(db_pool);
 
     // Run the server
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let port = std::env::var("PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8080);
+    
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::info!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
+}
+
+async fn health_check() -> &'static str {
+    "OK"
 }

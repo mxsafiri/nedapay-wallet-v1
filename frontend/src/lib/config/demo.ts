@@ -3,6 +3,8 @@
  * Controls behavior of the banking partner demo deployment
  */
 
+import { z } from 'zod';
+
 export interface DemoScenario {
   delay: number;
   failureRate: number;
@@ -178,4 +180,67 @@ export function resetDemoEnvironment(): void {
   localStorage.removeItem('demo_pending');
   // Reset reconciliation state
   localStorage.removeItem('demo_reconciliation');
+}
+
+export const demoConfigNew = {
+  limits: {
+    maxDailyTransactions: 1000,
+    maxTransactionAmount: 10000,
+    minTransactionAmount: 1,
+  },
+  delays: {
+    transactionProcessing: 2000, // 2 seconds
+    bankVerification: 1500,      // 1.5 seconds
+    reconciliation: 3000,        // 3 seconds
+  },
+  scenarios: {
+    normal: {
+      name: 'Normal Operation',
+      description: 'Standard banking operations with typical success rates',
+      failureRate: 0.01,        // 1% failure rate
+      avgProcessingTime: 2000,  // 2 seconds
+    },
+    highLoad: {
+      name: 'High Load',
+      description: 'Simulated high transaction volume with increased delays',
+      failureRate: 0.05,        // 5% failure rate
+      avgProcessingTime: 4000,  // 4 seconds
+    },
+    degraded: {
+      name: 'Degraded Service',
+      description: 'Banking system under stress with higher failure rates',
+      failureRate: 0.15,        // 15% failure rate
+      avgProcessingTime: 6000,  // 6 seconds
+    },
+    maintenance: {
+      name: 'Maintenance Mode',
+      description: 'System in maintenance with limited functionality',
+      failureRate: 1,           // 100% failure rate
+      avgProcessingTime: 1000,  // 1 second
+    },
+  },
+} as const;
+
+// Define scenario types based on the config
+export type ScenarioType = keyof typeof demoConfigNew.scenarios;
+const scenarioTypes = ['normal', 'highLoad', 'degraded', 'maintenance'] as const;
+
+export const DemoTransactionSchema = z.object({
+  amount: z.number()
+    .min(demoConfigNew.limits.minTransactionAmount)
+    .max(demoConfigNew.limits.maxTransactionAmount),
+  type: z.enum(['deposit', 'withdrawal', 'transfer'] as const),
+  scenario: z.enum(scenarioTypes).optional(),
+});
+
+export type DemoTransaction = z.infer<typeof DemoTransactionSchema>;
+
+export function resetDemoEnvironmentNew() {
+  // Reset all demo-related state
+  localStorage.removeItem('demo_scenario');
+  localStorage.removeItem('demo_transactions');
+  localStorage.removeItem('demo_balances');
+  
+  // Reset to default scenario
+  return demoConfigNew.scenarios.normal;
 }

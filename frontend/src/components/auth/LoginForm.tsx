@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,7 +16,6 @@ import { AlertCircle } from 'lucide-react';
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  twoFactorCode: z.string().length(6, 'Must be exactly 6 digits').optional(),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -23,69 +23,48 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
-      twoFactorCode: '',
     },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       setError(null);
+      setIsLoading(true);
       
-      // First phase: Email and password validation
-      if (!showTwoFactor) {
-        // TODO: Replace with actual API call
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: data.email,
-            password: data.password,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Invalid credentials');
-        }
-
-        setShowTwoFactor(true);
-        return;
-      }
-
-      // Second phase: 2FA verification
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/auth/verify-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: data.email,
-          code: data.twoFactorCode,
-        }),
+      const result = await signIn('credentials', {
+        username: data.email,
+        password: data.password,
+        redirect: false,
       });
 
-      if (!response.ok) {
-        throw new Error('Invalid 2FA code');
+      if (result?.error) {
+        setError('Invalid email or password');
+        return;
       }
 
       // Successful login
       router.push('/admin');
-      
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError('An error occurred during login');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-md p-6 space-y-6">
+    <Card className="w-full max-w-md p-6 space-y-6 border-border/50">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Admin Login</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-2xl font-bold">Admin Login</h1>
+        <p className="text-muted-foreground">
           Enter your credentials to access the admin dashboard
         </p>
       </div>
@@ -106,7 +85,12 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="admin@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="admin@nedapay.com"
+                    {...field}
+                    disabled={isLoading}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,35 +104,24 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    {...field}
+                    disabled={isLoading}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {showTwoFactor && (
-            <FormField
-              control={form.control}
-              name="twoFactorCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>2FA Code</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="000000" 
-                      maxLength={6}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          <Button type="submit" className="w-full">
-            {showTwoFactor ? 'Verify' : 'Login'}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
       </Form>

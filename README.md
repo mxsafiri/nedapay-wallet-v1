@@ -173,3 +173,60 @@ npm run lint
 - [Integration Guide](./docs/integration-guide.md)
 - [Security Overview](./docs/security.md)
 - [Demo Mode Guide](./docs/demo-mode.md)
+
+## NEDApay Bank Portal
+
+### Live Demo
+- Frontend: [https://frontend-mhd6dymwm-vmuhagachi-gmailcoms-projects.vercel.app](https://frontend-mhd6dymwm-vmuhagachi-gmailcoms-projects.vercel.app)
+- Demo Admin Login:
+  - Email: admin@nedapay.com
+  - Password: T3rRb0Fmlcjss0yu3i/GT43XSsXGUz6Y
+
+### Features
+- Admin Dashboard
+- Transaction Management
+- User Management
+- Demo Mode Controls
+- Banking Partner Integration
+
+### Tech Stack
+- Frontend: Next.js 13 (App Router)
+- Authentication: NextAuth.js
+- UI: Tailwind CSS
+- Deployment: Vercel
+- Backend: Rust (Railway)
+
+### Development
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+### Environment Variables
+Required environment variables for deployment:
+```
+NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET=your-secret-key
+ADMIN_USERNAME=admin@example.com
+ADMIN_PASSWORD=your-secure-password
+```
+
+### Deployment
+The frontend is deployed on Vercel with the following configuration:
+- Framework: Next.js
+- Build Command: `npm run build`
+- Install Command: `npm install`
+- Output Directory: `.next`
+
+### Demo Mode
+The application includes a demo mode with:
+- Simulated transactions
+- Configurable delays and failure rates
+- Test scenarios
+- Mock banking operations

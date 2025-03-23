@@ -43,3 +43,4 @@ Thumbs.db
 deploy/environments/.env.*
 !deploy/environments/.env.example
 frontend/.env.production
+.vercel
