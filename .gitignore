@@ -42,3 +42,4 @@ Thumbs.db
 # Deployment
 deploy/environments/.env.*
 !deploy/environments/.env.example
+frontend/.env.production
