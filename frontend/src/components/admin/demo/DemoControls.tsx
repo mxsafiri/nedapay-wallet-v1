@@ -6,16 +6,18 @@ import { Button } from '@/components/ui/button';
 import { mockBankingApi } from '@/lib/mock-api/banking';
 import { demoScenarios, demoConfig, resetDemoEnvironment } from '@/lib/config/demo';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowUpDown, RefreshCcw, AlertTriangle } from 'lucide-react';
+import { ArrowUpDown, RefreshCcw, AlertTriangle, Clock, Shield, Globe } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export function DemoControls() {
   const { toast } = useToast();
 
   const handleScenarioChange = (scenarioName: string) => {
     mockBankingApi.setScenario(scenarioName);
+    const scenario = demoScenarios[scenarioName];
     toast({
       title: 'Scenario Changed',
-      description: `Now using: ${demoConfig.scenarios[scenarioName].description}`,
+      description: `Now using: ${scenario.description}`,
     });
   };
 
@@ -26,6 +28,23 @@ export function DemoControls() {
       title: 'Demo Reset',
       description: 'Demo environment has been reset to initial state',
     });
+  };
+
+  const getScenarioIcon = (scenarioName: string) => {
+    switch (scenarioName) {
+      case 'peakHours':
+      case 'slowProcessing':
+        return <Clock className="h-4 w-4" />;
+      case 'maintenanceWindow':
+      case 'networkIssues':
+        return <AlertTriangle className="h-4 w-4" />;
+      case 'complianceHold':
+        return <Shield className="h-4 w-4" />;
+      case 'internationalTransfer':
+        return <Globe className="h-4 w-4" />;
+      default:
+        return <ArrowUpDown className="h-4 w-4" />;
+    }
   };
 
   return (
@@ -52,79 +71,63 @@ export function DemoControls() {
             <h3 className="stat-label">Success Rate</h3>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="stat-value">
-            {((1 - demoConfig.scenarios.default.failureRate) * 100).toFixed(1)}%
-          </div>
+          <div className="stat-value text-success">98.5%</div>
           <div className="mt-2 flex items-center text-sm">
-            <span className="text-error">↓ 3%</span>
-            <span className="text-muted-foreground ml-2">from baseline</span>
+            <span className="text-success">↑ 2.1%</span>
+            <span className="text-muted-foreground ml-2">improvement</span>
           </div>
         </Card>
       </div>
 
-      <Card className="p-6 card-gradient">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-lg font-semibold">Transaction Scenarios</h2>
-            <p className="text-sm text-muted-foreground">
-              Configure transaction behavior and test different scenarios
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="bg-transparent border-border hover:bg-card"
-          >
-            <RefreshCcw className="h-4 w-4 mr-2" />
-            Reset
-          </Button>
-        </div>
-
+      {/* Scenario Selection */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Demo Scenarios</h3>
         <div className="grid grid-cols-2 gap-4">
-          {Object.entries(demoConfig.scenarios).map(([name, scenario]) => (
+          {Object.entries(demoScenarios).map(([name, scenario]) => (
             <Button
               key={name}
               variant="outline"
+              className="justify-start h-auto py-3 px-4"
               onClick={() => handleScenarioChange(name)}
-              className="h-auto p-4 bg-card hover:bg-card/80 border-border text-left flex flex-col items-start space-y-2"
             >
-              <div className="font-medium">{name}</div>
-              <div className="text-xs text-muted-foreground">
-                <div>Delay: {scenario.delay}ms</div>
-                <div>Failure Rate: {scenario.failureRate * 100}%</div>
+              <div className="flex items-start gap-3">
+                <div className="mt-1">{getScenarioIcon(name)}</div>
+                <div className="text-left">
+                  <div className="font-medium">{name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {scenario.description}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    {scenario.features?.retryable && (
+                      <Badge variant="outline">Retryable</Badge>
+                    )}
+                    {scenario.features?.reconciliation && (
+                      <Badge variant="outline">Reconciliation</Badge>
+                    )}
+                    {scenario.features?.partialSuccess && (
+                      <Badge variant="outline">Partial Settlement</Badge>
+                    )}
+                  </div>
+                </div>
               </div>
             </Button>
           ))}
         </div>
       </Card>
 
-      <Card className="p-6 card-gradient">
-        <h2 className="text-lg font-semibold mb-4">System Limits</h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-card rounded-lg border border-border">
-            <div>
-              <div className="text-sm font-medium">Max Transaction</div>
-              <div className="text-2xl font-semibold text-primary">
-                ${demoConfig.limits.maxTransactionValue}
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Per transaction limit
-            </div>
+      {/* Reset Controls */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Reset Environment</h3>
+            <p className="text-sm text-muted-foreground">
+              Reset all demo settings to their default values
+            </p>
           </div>
-
-          <div className="flex items-center justify-between p-3 bg-card rounded-lg border border-border">
-            <div>
-              <div className="text-sm font-medium">Daily Limit</div>
-              <div className="text-2xl font-semibold text-primary">
-                {demoConfig.limits.maxDailyTransactions}
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Transactions per day
-            </div>
-          </div>
+          <Button variant="destructive" onClick={handleReset}>
+            <RefreshCcw className="h-4 w-4 mr-2" />
+            Reset Demo
+          </Button>
         </div>
       </Card>
     </div>

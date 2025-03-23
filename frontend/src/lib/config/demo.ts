@@ -9,12 +9,22 @@ export interface DemoScenario {
   delay: number;
   failureRate: number;
   description: string;
+  features?: {
+    retryable?: boolean;
+    reconciliation?: boolean;
+    partialSuccess?: boolean;
+  };
 }
 
 export interface DemoResponse {
-  status: 'success' | 'failed' | 'pending';
+  status: 'success' | 'failed' | 'pending' | 'partial';
   delay: number;
   error?: string;
+  details?: {
+    retryAfter?: number;
+    partialAmount?: number;
+    reconciliationId?: string;
+  };
 }
 
 /**
@@ -41,6 +51,59 @@ export const demoScenarios: Record<string, DemoScenario> = {
     failureRate: 0.2,
     description: 'Slow processing with moderate failures',
   },
+  // New scenarios
+  peakHours: {
+    delay: 3000,
+    failureRate: 0.15,
+    description: 'Peak hours with increased latency',
+    features: {
+      retryable: true,
+      reconciliation: true,
+    },
+  },
+  maintenanceWindow: {
+    delay: 8000,
+    failureRate: 0.8,
+    description: 'System maintenance with limited availability',
+    features: {
+      retryable: true,
+    },
+  },
+  networkIssues: {
+    delay: 4000,
+    failureRate: 0.3,
+    description: 'Network connectivity problems',
+    features: {
+      retryable: true,
+      reconciliation: true,
+    },
+  },
+  partialSettlement: {
+    delay: 1500,
+    failureRate: 0.2,
+    description: 'Partial settlement due to liquidity',
+    features: {
+      partialSuccess: true,
+      reconciliation: true,
+    },
+  },
+  internationalTransfer: {
+    delay: 6000,
+    failureRate: 0.25,
+    description: 'International transfer with compliance checks',
+    features: {
+      reconciliation: true,
+    },
+  },
+  complianceHold: {
+    delay: 10000,
+    failureRate: 0.4,
+    description: 'Transactions held for compliance review',
+    features: {
+      retryable: true,
+      reconciliation: true,
+    },
+  },
 };
 
 /**
@@ -65,12 +128,33 @@ export const mockResponses: Record<string, DemoResponse> = {
     delay: 1000,
     error: 'Network connectivity issues',
   },
+  retryableError: {
+    status: 'failed',
+    delay: 1000,
+    error: 'Temporary error, please retry',
+    details: {
+      retryAfter: 3000,
+    },
+  },
+  partialSettlement: {
+    status: 'partial',
+    delay: 1500,
+    details: {
+      partialAmount: 500,
+      reconciliationId: 'RECON-123',
+    },
+  },
 };
 
 interface ScenarioConfig {
   delay: number;
   failureRate: number;
   description: string;
+  features?: {
+    retryable?: boolean;
+    reconciliation?: boolean;
+    partialSuccess?: boolean;
+  };
 }
 
 interface DemoConfig {
