@@ -9,6 +9,9 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
   output: 'standalone',
+  experimental: {
+    serverActions: true,
+  },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
@@ -28,6 +31,15 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/admin',
+        permanent: true,
+      },
+    ];
   },
   // Environment configuration
   env: {

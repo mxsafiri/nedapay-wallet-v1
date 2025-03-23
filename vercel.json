@@ -12,5 +12,11 @@
   "env": {
     "NEXT_PUBLIC_API_URL": "https://api.nedapay.com",
     "NEXT_PUBLIC_DEPLOYMENT_MODE": "demo"
-  }
+  },
+  "routes": [
+    { "src": "/admin", "dest": "/frontend/admin" },
+    { "src": "/admin/(.*)", "dest": "/frontend/admin/$1" },
+    { "src": "/login", "dest": "/frontend/login" },
+    { "src": "/api/(.*)", "dest": "/frontend/api/$1" }
+  ]
 }
