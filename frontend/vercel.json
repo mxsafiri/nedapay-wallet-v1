@@ -27,5 +27,11 @@
         }
       ]
     }
-  ]
+  ],
+  "ignoreEnvFiles": true,
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
 }

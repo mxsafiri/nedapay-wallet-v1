@@ -1,0 +1,16 @@
+[build]
+builder = "rust"
+buildCommand = "cargo build --release"
+
+[deploy]
+startCommand = "./target/release/nedapay-wallet-v1"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+numReplicas = 1
+
+[env]
+RUST_LOG = "info"
+PORT = "8080"
+DATABASE_URL = "${POSTGRES_URL}"
+REDIS_URL = "${REDIS_URL}"
