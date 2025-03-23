@@ -1,36 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  images: {
-    domains: ['nedapay.com'], // Add your image domains here
-  },
-  poweredByHeader: false,
-  compress: true,
-  productionBrowserSourceMaps: false,
   output: 'standalone',
   experimental: {
     serverActions: true,
-  },
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains'
-          },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          }
-        ],
-      },
-    ]
   },
   async redirects() {
     return [
@@ -44,14 +16,17 @@ const nextConfig = {
   // Environment configuration
   env: {
     NEXT_PUBLIC_DEPLOYMENT_MODE: process.env.NEXT_PUBLIC_DEPLOYMENT_MODE || 'demo',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
   },
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': './src',
-    };
-    return config;
+  // Build configuration
+  swcMinify: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  compress: true,
+  productionBrowserSourceMaps: false,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
