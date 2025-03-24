@@ -4,15 +4,6 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/admin',
-        permanent: true,
-      },
-    ];
-  },
   // Environment configuration
   env: {
     NEXT_PUBLIC_DEPLOYMENT_MODE: process.env.NEXT_PUBLIC_DEPLOYMENT_MODE || 'demo',
